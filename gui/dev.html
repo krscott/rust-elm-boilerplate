@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dev Elm App</title>
+    <script type="text/javascript" src="elm-dist.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<!--
+    This index.html is here only for debugging purposes,
+    it is not used in the compiled Rust binary.
+-->
+
+<body>
+    <div id="elm">
+    </div>
+    <script type="text/javascript">
+        var app = Elm.Main.init({ node: document.getElementById("elm") })
+
+        app.ports.toRust.subscribe(function (data) {
+            console.debug(data)
+
+            switch (data.cmd) {
+                case "Init":
+                    break
+
+                case "Log":
+                    switch (data.level) {
+                        case "Error":
+                            console.error(data.msg)
+                            break
+                        case "Warn":
+                            console.warn(data.msg)
+                            break
+                        case "Info":
+                            console.log(data.msg)
+                            break
+                        case "Debug":
+                            console.debug(data.msg)
+                            break
+                        default:
+                            console.error("Unknown log level " + data.level + ": " + data.msg)
+                            break
+                    }
+                    break
+
+                case "UploadFile":
+                    console.log("Filename: " + data.filename + "\nContent: " + data.content)
+                    break
+
+                default:
+                    console.error("Unknown cmd: " + data.cmd)
+                    break
+            }
+        })
+
+        function fromRust(msg) {
+            app.ports.fromRust.send(msg)
+        }
+
+        fromRust({
+            state: "EditFile",
+            filename: "foobar.txt",
+            content: "Text content!"
+        })
+
+    </script>
+</body>
+
+</html>
