@@ -1,0 +1,58 @@
+---
+module: ApiTypes
+types:
+  - Struct:
+      name: FileData
+      fields:
+        - name: filename
+          data:
+            - String
+            - String
+        - name: content
+          data:
+            - String
+            - String
+
+  - Enum:
+      name: LogLevel
+      variants:
+        - name: Error
+          data: None
+        - name: Warn
+          data: None
+        - name: Info
+          data: None
+        - name: Debug
+          data: None
+
+  - Enum:
+      name: ToRustMsg
+      variants:
+        - name: Log
+          data:
+            Struct:
+              - name: level
+                data:
+                  - LogLevel
+                  - LogLevel
+              - name: msg
+                data:
+                  - String
+                  - String
+
+        - name: UploadFile
+          data:
+            Single:
+              - FileData
+              - FileData
+
+  - Enum:
+      name: FromRustMsg
+      variants:
+        - name: Loading
+          data: None
+        - name: EditFile
+          data:
+            Single:
+              - FileData
+              - FileData

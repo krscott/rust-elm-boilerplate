@@ -18,7 +18,10 @@ pub enum LogLevel {
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "var", content = "vardata")]
 pub enum ToRustMsg {
-    Log { level: LogLevel, msg: String },
+    Log {
+        level: LogLevel,
+        msg: String,
+    },
     UploadFile(FileData),
 }
 

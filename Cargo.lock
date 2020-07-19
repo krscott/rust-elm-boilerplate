@@ -99,6 +99,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dtoa"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "134951f4028bdadb9b84baf4232681efbf277da25144b9b0ad65df75946c422b"
+
+[[package]]
 name = "gdk-pixbuf-sys"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -221,6 +227,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9457b06509d27052635f90d6466700c65095fdf75409b3fbdd903e988b886f49"
 
 [[package]]
+name = "linked-hash-map"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8dd5a6d5999d9907cda8ed67bbd137d3af8085216c2ac62de5be860bd41f304a"
+
+[[package]]
 name = "log"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -271,6 +283,11 @@ name = "pkg-config"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05da548ad6865900e60eaba7f589cc0783590a92e940c26953ff81ddbab2d677"
+
+[[package]]
+name = "polymorphio"
+version = "0.1.2"
+source = "git+https://github.com/krscott/polymorphio.git?tag=v0.1.2#4d60e9590cdf4fea525276a40df931cb04e89bf3"
 
 [[package]]
 name = "proc-macro-error"
@@ -336,11 +353,26 @@ name = "rust-elm-boilerplate"
 version = "0.1.0"
 dependencies = [
  "log",
+ "rust_elm_types",
  "serde",
  "serde_json",
+ "serde_yaml",
  "stderrlog",
  "structopt",
  "web-view",
+]
+
+[[package]]
+name = "rust_elm_types"
+version = "0.1.0"
+source = "git+https://github.com/krscott/rust_elm_types.git?rev=77de75bcde0c17bed32cb207ea40483e92d78267#77de75bcde0c17bed32cb207ea40483e92d78267"
+dependencies = [
+ "log",
+ "polymorphio",
+ "serde",
+ "serde_yaml",
+ "stderrlog",
+ "structopt",
 ]
 
 [[package]]
@@ -378,6 +410,18 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_yaml"
+version = "0.8.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae3e2dd40a7cdc18ca80db804b7f461a39bb721160a85c9a1fa30134bf3c02a5"
+dependencies = [
+ "dtoa",
+ "linked-hash-map",
+ "serde",
+ "yaml-rust",
 ]
 
 [[package]]
@@ -652,3 +696,12 @@ name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
+
+[[package]]
+name = "yaml-rust"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39f0c922f1a334134dc2f7a8b67dc5d25f0735263feec974345ff706bcf20b0d"
+dependencies = [
+ "linked-hash-map",
+]
