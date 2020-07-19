@@ -1,5 +1,6 @@
 port module Main exposing (main)
 
+import ApiTypes
 import Browser
 import Html
     exposing
@@ -19,14 +20,14 @@ import Html.Attributes
         , value
         )
 import Html.Events exposing (onClick, onInput)
-import Json.Decode as Decode exposing (Decoder, field)
-import Json.Encode exposing (Value, object, string)
+import Json.Decode
+import Json.Encode
 
 
-port toRust : Value -> Cmd msg
+port toRust : Json.Encode.Value -> Cmd msg
 
 
-port fromRust : (Value -> msg) -> Sub msg
+port fromRust : (Json.Encode.Value -> msg) -> Sub msg
 
 
 main : Program () Model Msg
@@ -50,12 +51,7 @@ type Model
 
 type Msg
     = ChangeState Model
-    | SendToRust RustCommand
-
-
-type RustCommand
-    = Log String String
-    | UploadFile String String
+    | SendToRust ApiTypes.ToRustMsg
 
 
 init : () -> ( Model, Cmd Msg )
@@ -67,33 +63,11 @@ init _ =
 ----- UPDATE
 
 
-toRustCmd : RustCommand -> Cmd Msg
-toRustCmd command =
-    let
-        value =
-            case command of
-                Log level msg ->
-                    object
-                        [ ( "cmd", string "Log" )
-                        , ( "level", string level )
-                        , ( "msg", string msg )
-                        ]
-
-                UploadFile filename content ->
-                    object
-                        [ ( "cmd", string "UploadFile" )
-                        , ( "filename", string filename )
-                        , ( "content", string content )
-                        ]
-    in
-    toRust value
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SendToRust command ->
-            ( model, toRustCmd command )
+        SendToRust toRustMsg ->
+            ( model, toRust <| ApiTypes.encodeToRustMsg toRustMsg )
 
         ChangeState newModel ->
             ( newModel, Cmd.none )
@@ -132,7 +106,7 @@ view model =
                         ]
                     , div []
                         [ button
-                            [ onClick (SendToRust (UploadFile filename content)) ]
+                            [ onClick (SendToRust (ApiTypes.UploadFile { filename = filename, content = content })) ]
                             [ text "Upload" ]
                         ]
                     ]
@@ -143,44 +117,23 @@ view model =
 -- SUBSCRIPTIONS
 
 
-modelEditFileDecoder : Decoder Model
-modelEditFileDecoder =
-    Decode.map2 EditFile
-        (field "filename" Decode.string)
-        (field "content" Decode.string)
-
-
-chooseStateDecoder : String -> Decoder Model
-chooseStateDecoder state =
-    case state of
-        "Loading" ->
-            Decode.succeed Loading
-
-        "EditFile" ->
-            modelEditFileDecoder
-
-        _ ->
-            Decode.fail ("Invalid state type: " ++ state)
-
-
-modelDecoder : Decoder Model
-modelDecoder =
-    field "state" Decode.string
-        |> Decode.andThen chooseStateDecoder
-
-
-decodeValue : Value -> Msg
-decodeValue x =
+decodeValue : Json.Encode.Value -> Msg
+decodeValue json =
     let
         result =
-            Decode.decodeValue modelDecoder x
+            Json.Decode.decodeValue ApiTypes.decodeFromRustMsg json
     in
     case result of
-        Ok model ->
-            ChangeState model
+        Ok fromRustMsg ->
+            case fromRustMsg of
+                ApiTypes.Loading ->
+                    ChangeState Loading
+
+                ApiTypes.EditFile { filename, content } ->
+                    ChangeState (EditFile filename content)
 
         Err err ->
-            SendToRust (Log "Error" (Decode.errorToString err))
+            SendToRust (ApiTypes.Log { level = ApiTypes.Error, msg = Json.Decode.errorToString err })
 
 
 subscriptions : Model -> Sub Msg

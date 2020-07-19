@@ -1,7 +1,7 @@
+mod api_types;
 mod gui;
 
 use gui::Gui;
-use serde::{Deserialize, Serialize};
 use std::{error::Error, fs::read_to_string, path::PathBuf, process::exit};
 use structopt::StructOpt;
 
@@ -17,38 +17,16 @@ struct Opt {
     input: Option<PathBuf>,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(tag = "state")]
-enum ToGuiMsg {
-    // Loading,
-    EditFile { filename: String, content: String },
-}
-
-#[derive(Debug, Deserialize)]
-enum LogLevel {
-    Error,
-    Warn,
-    Info,
-    Debug,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(tag = "cmd")]
-enum FromGuiMsg {
-    Log { level: LogLevel, msg: String },
-    UploadFile { filename: String, content: String },
-}
-
 fn app(opt: Opt) -> Result<(), Box<dyn Error>> {
     let msg = match opt.input {
-        Some(pathbuf) => ToGuiMsg::EditFile {
+        Some(pathbuf) => api_types::FromRustMsg::EditFile(api_types::FileData {
             filename: pathbuf.to_str().unwrap_or("").to_owned(),
             content: read_to_string(pathbuf)?,
-        },
-        None => ToGuiMsg::EditFile {
+        }),
+        None => api_types::FromRustMsg::EditFile(api_types::FileData {
             filename: "New File.txt".into(),
             content: "".into(),
-        },
+        }),
     };
 
     let gui = Gui::new();
@@ -56,7 +34,8 @@ fn app(opt: Opt) -> Result<(), Box<dyn Error>> {
     gui.send(msg)?;
 
     loop {
-        use FromGuiMsg::*;
+        use api_types::LogLevel;
+        use api_types::ToRustMsg::*;
         match gui.recv()? {
             Log { level, msg } => match level {
                 LogLevel::Error => log::error!("{}", msg),
@@ -64,10 +43,10 @@ fn app(opt: Opt) -> Result<(), Box<dyn Error>> {
                 LogLevel::Info => log::info!("{}", msg),
                 LogLevel::Debug => log::debug!("{}", msg),
             },
-            UploadFile {
+            UploadFile(api_types::FileData {
                 filename: _,
                 content,
-            } => {
+            }) => {
                 println!("{}", content);
                 break;
             }
