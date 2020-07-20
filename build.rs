@@ -28,7 +28,7 @@ fn main() {
     fs::write(&elm_path, elm_code).unwrap();
 
     env::set_current_dir(ELM_DIR).unwrap();
-    Command::new("elm")
+    let elm_build_status = Command::new("elm")
         .args(&[
             "make",
             "--optimize",
@@ -36,8 +36,10 @@ fn main() {
             ELM_DIST_OUTPUT,
             "src/Main.elm",
         ])
-        .output()
+        .status()
         .unwrap();
+
+    assert!(elm_build_status.success());
 
     println!("cargo:rerun-if-changed={}", API_TYPES_FILE);
     println!("cargo:rerun-if-changed={}/{}", ELM_DIR, ELM_DIST_OUTPUT);
