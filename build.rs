@@ -40,7 +40,4 @@ fn main() {
         .unwrap();
 
     assert!(elm_build_status.success());
-
-    println!("cargo:rerun-if-changed={}", API_TYPES_FILE);
-    println!("cargo:rerun-if-changed={}/{}", ELM_DIR, ELM_DIST_OUTPUT);
 }
