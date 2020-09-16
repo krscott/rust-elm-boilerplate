@@ -365,7 +365,7 @@ dependencies = [
 [[package]]
 name = "rust_elm_types"
 version = "0.1.0"
-source = "git+https://github.com/krscott/rust_elm_types.git?rev=77de75bcde0c17bed32cb207ea40483e92d78267#77de75bcde0c17bed32cb207ea40483e92d78267"
+source = "git+https://github.com/krscott/rust_elm_types.git?tag=v0.1.0#214ebaaa99fd08a03542f3c41dea5e3cba55941a"
 dependencies = [
  "log",
  "polymorphio",
